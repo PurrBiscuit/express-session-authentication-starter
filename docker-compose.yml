@@ -1,0 +1,17 @@
+version: '2'
+services:
+  app:
+    build: .
+    depends_on:
+      - mongo
+    env_file:
+      - .env
+    ports:
+      - 8080:3000
+    volumes:
+      - '.:/service'
+      - '/service/node_modules'
+    command: yarn start:dev
+
+  mongo:
+    image: mongo:4.4.4
