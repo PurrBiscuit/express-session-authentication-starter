@@ -23,6 +23,11 @@ router.get('/', (req, res, next) => {
     res.send('<h1>Home</h1><p>Please <a href="/register">register</a></p>');
 });
 
+router.get('/add-session-info', (req, res, next) => {
+  req.session.something = "hello"
+  res.writeHead(302, { Location: '/' }).end()
+});
+
 // When you visit http://localhost:3000/login, you will see "Login Page"
 router.get('/login', (req, res, next) => {
    
