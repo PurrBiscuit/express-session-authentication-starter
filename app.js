@@ -34,7 +34,7 @@ app.use(session({
 }))
 
 const loggedIn = (req, res, next) => {
-  if (req.isAuthenticated() || req.url === '/login' || req.url === '/register')
+  if (req.isAuthenticated() || req.url === '/login' || req.url === '/register' || req.url === '/favicon.ico')
     return next()
 
   res.writeHead(302, { Location: '/login' }).end()
