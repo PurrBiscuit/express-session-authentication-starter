@@ -5,9 +5,13 @@ const User = connection.models.User
 
 const { isPasswordValid } = require('../lib/passwordUtils')
 
+// this function is called on the login route as
+// the passport.authenticate('local) middleware.
+
 // verifyLogin immediately adds the req.user object to the
 // the request object after successful login for the current request.
-// it will then call the passport.serializeUser method if login is successful.
+
+// It will then call the passport.serializeUser method if login is successful.
 const verifyLogin = (username, password, done) => {
   User.findOne({ username })
     .then(user => {

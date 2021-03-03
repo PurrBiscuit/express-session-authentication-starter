@@ -65,7 +65,7 @@ app.use(passport.initialize());
 // in that req.session.passport object and turn it into a req.user object
 // for future middleware to use to check if the user is authenticated.
 // req.session gets set by session middleware on requests, like express-session,
-// so it's important express-session middleware is before password.session()
+// so it's important express-session middleware is before passport.session()
 app.use(passport.session());
 
 app.use(loggedIn)
