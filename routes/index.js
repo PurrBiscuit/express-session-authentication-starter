@@ -1,18 +1,43 @@
-const router = require('express').Router();
-const passport = require('passport');
-const passwordUtils = require('../lib/passwordUtils');
-const connection = require('../config/database');
-const User = connection.models.User;
+const router = require('express').Router()
+const passport = require('passport')
+const { genPassword } = require('../lib/passwordUtils')
+const connection = require('../config/database')
+const User = connection.models.User
+
+/**
+ * -------------- MIDDLEWARE ----------------
+ */
+const loggedIn = (req, res, next) => {
+  if (req.isAuthenticated())
+    return res.writeHead(302, { Location: '/' }).end()
+
+  next()
+}
 
 /**
  * -------------- POST ROUTES ----------------
  */
 
- // TODO
- router.post('/login', (req, res, next) => {});
+router.post('/login', passport.authenticate('local'), (req, res, next) => {
+  res.send('great success!')
+});
 
- // TODO
- router.post('/register', (req, res, next) => {});
+router.post('/register', (req, res, next) => {
+  const { salt, hash } = genPassword(req.body.password)
+
+  const newUser = new User({
+    username: req.body.username,
+    hash,
+    salt
+  })
+
+  newUser.save()
+    .then(({ username }) =>
+      console.log(`user registration successful to ${username}`)
+    )
+
+  res.redirect('/login')
+});
 
 
  /**
@@ -20,7 +45,7 @@ const User = connection.models.User;
  */
 
 router.get('/', (req, res, next) => {
-    res.send('<h1>Home</h1><p>Please <a href="/register">register</a></p>');
+  res.send(`<h1>Home</h1><h3>Welcome ${req.user.username}</h3><p>Please <a href="/register">register</a></p>`);
 });
 
 router.get('/add-session-info', (req, res, next) => {
@@ -29,7 +54,7 @@ router.get('/add-session-info', (req, res, next) => {
 });
 
 // When you visit http://localhost:3000/login, you will see "Login Page"
-router.get('/login', (req, res, next) => {
+router.get('/login', loggedIn, (req, res, next) => {
    
     const form = '<h1>Login Page</h1><form method="POST" action="/login">\
     Enter Username:<br><input type="text" name="username">\
@@ -59,7 +84,6 @@ router.get('/register', (req, res, next) => {
  * Also, look up what behaviour express session has without a maxage set
  */
 router.get('/protected-route', (req, res, next) => {
-    
     // This is how you check if a user is authenticated and protect a route.  You could turn this into a custom middleware to make it less redundant
     if (req.isAuthenticated()) {
         res.send('<h1>You are authenticated</h1><p><a href="/logout">Logout and reload</a></p>');
@@ -70,16 +94,17 @@ router.get('/protected-route', (req, res, next) => {
 
 // Visiting this route logs the user out
 router.get('/logout', (req, res, next) => {
-    req.logout();
-    res.redirect('/protected-route');
-});
+  req.logout();
 
-router.get('/login-success', (req, res, next) => {
-    res.send('<p>You successfully logged in. --> <a href="/protected-route">Go to protected route</a></p>');
-});
+  req.session.destroy(err => {
+    if (err) console.log(`Session destroy failed with - ${err}`)
 
-router.get('/login-failure', (req, res, next) => {
-    res.send('You entered the wrong password.');
+    console.log(`Session destroyed successfully - user logged out.`)
+  })
+
+  res.clearCookie(process.env.COOKIE_NAME)
+
+  res.redirect('/login');
 });
 
 module.exports = router;

@@ -26,7 +26,7 @@ const UserSchema = new mongoose.Schema({
 });
 
 
-const User = connection.model('User', UserSchema);
+connection.model('User', UserSchema);
 
 // Expose the connection
 module.exports = connection;
