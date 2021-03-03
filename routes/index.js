@@ -94,6 +94,10 @@ router.get('/protected-route', (req, res, next) => {
 
 // Visiting this route logs the user out
 router.get('/logout', (req, res, next) => {
+  // a method added by passport that will remove the user object from
+  // the req.session.passport object on the request.
+  // this method won't delete the cookie from the user's browser or
+  // destroy the session altogether from the session-store by itself.
   req.logout();
 
   req.session.destroy(err => {
